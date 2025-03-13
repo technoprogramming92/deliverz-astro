@@ -1,10 +1,9 @@
 ---
 import Footer from "../components/Footer.astro";
+import SignupForm from "../components/SignupForm";
+import LoginForm from "../components/LoginForm";
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
@@ -148,7 +147,9 @@ import Layout from "../layouts/Layout.astro";
             <h6 class="card-title fw-bold mb-1">Trial Tiffin 1</h6>
             <p class="card-text text-muted mb-2">$ 10</p>
           </div>
-          <a href="listing-detail.html" class="stretched-link"></a>
+          <a
+            href="https://buy.stripe.com/test_aEU7vDcN14dybra5kk"
+            class="stretched-link"></a>
         </div>
       </div>
       <div class="col">
@@ -164,7 +165,9 @@ import Layout from "../layouts/Layout.astro";
             <h6 class="card-title fw-bold mb-1">Weekly Subscription 1</h6>
             <p class="card-text text-muted mb-2">$ 50</p>
           </div>
-          <a href="listing-detail.html" class="stretched-link"></a>
+          <a
+            href="https://buy.stripe.com/test_4gwg29cN125q1QA6op"
+            class="stretched-link"></a>
         </div>
       </div>
       <div class="col">
@@ -180,7 +183,9 @@ import Layout from "../layouts/Layout.astro";
             <h6 class="card-title fw-bold mb-1">Monthly Subscription 1</h6>
             <p class="card-text text-muted mb-2">$ 200</p>
           </div>
-          <a href="listing-detail.html" class="stretched-link"></a>
+          <a
+            href="https://buy.stripe.com/test_5kA03b7sH9xSan68wy"
+            class="stretched-link"></a>
         </div>
       </div>
       <div class="col">
@@ -196,7 +201,9 @@ import Layout from "../layouts/Layout.astro";
             <h6 class="card-title fw-bold mb-1">Trial Tiffin 2</h6>
             <p class="card-text text-muted mb-2">$ 12</p>
           </div>
-          <a href="listing-detail.html" class="stretched-link"></a>
+          <a
+            href="https://buy.stripe.com/test_dR64jr9AP7pK9j23cf"
+            class="stretched-link"></a>
         </div>
       </div>
       <div class="col">
@@ -212,7 +219,9 @@ import Layout from "../layouts/Layout.astro";
             <h6 class="card-title fw-bold mb-1">Weekly Subscription 2</h6>
             <p class="card-text text-muted mb-2">$ 60</p>
           </div>
-          <a href="listing-detail.html" class="stretched-link"></a>
+          <a
+            href="https://buy.stripe.com/test_eVa3fncN18tO1QA148"
+            class="stretched-link"></a>
         </div>
       </div>
       <div class="col">
@@ -228,7 +237,9 @@ import Layout from "../layouts/Layout.astro";
             <h6 class="card-title fw-bold mb-1">Monthly Subscription 2</h6>
             <p class="card-text text-muted mb-2">$ 240</p>
           </div>
-          <a href="listing-detail.html" class="stretched-link"></a>
+          <a
+            href="https://buy.stripe.com/test_3cs5nvcN17pKeDmcMR"
+            class="stretched-link"></a>
         </div>
       </div>
     </div>
@@ -325,8 +336,7 @@ import Layout from "../layouts/Layout.astro";
   </section>
   <!-- Footer -->
   <Footer />
-  <!-- Sign in Modal -->
-  <!-- 1st -->
+  <!-- Login Modal -->
   <div
     class="modal fade"
     id="exampleModalToggle"
@@ -347,47 +357,12 @@ import Layout from "../layouts/Layout.astro";
               <div class="d-none d-md-flex col-md-4 col-lg-4 bg-image1"></div>
               <div class="col-md-8 col-lg-8 py-lg-5">
                 <div class="login p-5">
-                  <div class="mb-4 pb-2">
-                    <h5 class="mb-2 fw-bold">Hey! what’s your number?</h5>
-                    <p class="text-muted mb-0">
-                      Please login with this number the next time you sign-in
-                    </p>
-                  </div>
-                  <form>
-                    <div class="input-group bg-white border rounded mb-3 p-2">
-                      <span class="input-group-text bg-white border-0"
-                        ><i class="bi bi-phone pe-2"></i> +91
-                      </span>
-                      <input
-                        type="text"
-                        class="form-control bg-white border-0 ps-0"
-                        placeholder="Enter phone number"
-                      />
-                    </div>
-                    <div class="form-check">
-                      <input
-                        type="checkbox"
-                        class="form-check-input"
-                        id="exampleCheck1"
-                      />
-                      <label
-                        class="form-check-label small text-muted border-end pe-1"
-                        for="exampleCheck1"
-                        >I accept the Terms of use & Privacy Policy</label
-                      >
-                      <a
-                        href="#"
-                        class="text-decoration-none text-success small"
-                        >View T&C <i class="bi bi-chevron-right"></i></a
-                      >
-                    </div>
-                  </form>
-                  <button
-                    class="btn btn-success btn-lg py-3 px-4 text-uppercase w-100 mt-4"
-                    data-bs-target="#exampleModalToggle2"
-                    data-bs-toggle="modal"
-                    >Get OTP <i class="bi bi-arrow-right ms-2"></i></button
-                  >
+                  <h5 class="mb-2 fw-bold">Hey! Signin with Email Address</h5>
+                  <p class="text-muted mb-0">
+                    Please login with this email address the next time you
+                    sign-in
+                  </p>
+                  <LoginForm client:load />
                 </div>
               </div>
             </div>
@@ -396,7 +371,8 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </div>
   </div>
-  <!-- 2nd -->
+
+  <!-- Signup Modal -->
   <div
     class="modal fade"
     id="exampleModalToggle2"
@@ -417,59 +393,8 @@ import Layout from "../layouts/Layout.astro";
               <div class="d-none d-md-flex col-md-4 col-lg-4 bg-image1"></div>
               <div class="col-md-8 col-lg-8 py-lg-5">
                 <div class="login p-5">
-                  <div class="mb-4 pb-2">
-                    <h5 class="mb-2 fw-bold">Confirm your number</h5>
-                    <p class="text-muted mb-0">
-                      Enter the 4 digit OTP we’ve sent by SMS to 123456-78909
-                      <a
-                        data-bs-target="#exampleModalToggle2"
-                        data-bs-toggle="modal"
-                        class="text-success text-decoration-none"
-                        href="#"><i class="bi bi-pencil-square"></i> Edit</a
-                      >
-                    </p>
-                  </div>
-                  <form>
-                    <div class="d-flex gap-3 text-center">
-                      <div class="input-group bg-white border rounded mb-3 p-2">
-                        <input
-                          type="text"
-                          value="1"
-                          class="form-control bg-white border-0 text-center"
-                        />
-                      </div>
-                      <div class="input-group bg-white border rounded mb-3 p-2">
-                        <input
-                          type="text"
-                          value="3"
-                          class="form-control bg-white border-0 text-center"
-                        />
-                      </div>
-                      <div class="input-group bg-white border rounded mb-3 p-2">
-                        <input
-                          type="text"
-                          value="1"
-                          class="form-control bg-white border-0 text-center"
-                        />
-                      </div>
-                      <div class="input-group bg-white border rounded mb-3 p-2">
-                        <input
-                          type="text"
-                          value="3"
-                          class="form-control bg-white border-0 text-center"
-                        />
-                      </div>
-                    </div>
-                    <div class="form-check ps-0">
-                      <label class="small text-muted">Resend OTP in 0:55</label>
-                    </div>
-                  </form>
-                  <button
-                    class="btn btn-success btn-lg py-3 px-4 text-uppercase w-100 mt-4"
-                    data-bs-target="#exampleModalToggle3"
-                    data-bs-toggle="modal"
-                    >Get OTP <i class="bi bi-arrow-right ms-2"></i></button
-                  >
+                  <h5 class="mb-2 fw-bold">Hey! Signup with Email Address</h5>
+                  <SignupForm client:load />
                 </div>
               </div>
             </div>
@@ -479,7 +404,7 @@ import Layout from "../layouts/Layout.astro";
     </div>
   </div>
   <!-- 3rd -->
-  <div
+  <!-- <div
     class="modal fade"
     id="exampleModalToggle3"
     aria-hidden="true"
@@ -529,9 +454,9 @@ import Layout from "../layouts/Layout.astro";
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
   <!-- 4rth -->
-  <div
+  <!-- <div
     class="modal fade"
     id="exampleModalToggle4"
     aria-hidden="true"
@@ -578,7 +503,7 @@ import Layout from "../layouts/Layout.astro";
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
   <!-- location Modal -->
   <div
     class="modal fade"
@@ -702,9 +627,9 @@ import Layout from "../layouts/Layout.astro";
     <a data-bs-toggle="modal" href="#exampleModalToggle" href="#"
       ><span class="bi bi-unlock-fill"></span> Sign In</a
     >
-    <a href="listing.html"><span class="bi bi-card-heading"></span> Listing</a>
+    <a href="/profile"><span class="bi bi-card-heading"></span> Profile</a>
     <a href="cart.html"><span class="bi bi-basket-fill"></span> Cart <b>2</b></a
     >
-    <a href="profile.html"><span class="bi bi-person-badge"></span> Account</a>
+    <!-- <a href="profile.html"><span class="bi bi-person-badge"></span> Account</a> -->
   </div>
 </Layout>
