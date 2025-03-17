@@ -1,32 +1,43 @@
 import { useState } from "react";
-import { auth } from "../lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignupForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     // Validate passwords
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
+      setIsLoading(false);
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      alert(`Signup Successful! Welcome, ${userCredential.user.email}`);
-      window.location.href = "/"; // Redirect to home page
-    } catch (error: any) {
-      setError(error.message);
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        alert(`Signup Successful! Welcome, ${result.user.email}`);
+        window.location.href = "/";
+      }
+    } catch (err) {
+      setError("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -71,38 +82,37 @@ const SignupForm = () => {
       <button
         type="submit"
         className="btn btn-success btn-lg py-3 px-4 text-uppercase w-100 mt-4"
+        disabled={isLoading}
       >
-        Register <i className="bi bi-arrow-right ms-2"></i>
+        {isLoading ? (
+          <>
+            <span
+              className="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Registering...
+          </>
+        ) : (
+          <>
+            Register <i className="bi bi-arrow-right ms-2"></i>
+          </>
+        )}
       </button>
 
       <p className="text-center mt-3">
         Already have an account?{" "}
-        <a href="#" className="text-success" onClick={() => switchToLogin()}>
+        <a
+          href="#"
+          className="text-success"
+          data-bs-toggle="modal"
+          data-bs-target="#exampleModalToggle"
+        >
           Click here to login
         </a>
       </p>
     </form>
   );
-};
-
-// Function to switch modal from Signup to Login
-const switchToLogin = () => {
-  const signupModal = document.getElementById(
-    "exampleModalToggle2"
-  ) as HTMLElement;
-  const loginModal = document.getElementById(
-    "exampleModalToggle"
-  ) as HTMLElement;
-
-  if (signupModal && loginModal) {
-    signupModal.classList.remove("show");
-    signupModal.setAttribute("aria-hidden", "true");
-    signupModal.style.display = "none";
-
-    loginModal.classList.add("show");
-    loginModal.setAttribute("aria-hidden", "false");
-    loginModal.style.display = "block";
-  }
 };
 
 export default SignupForm;

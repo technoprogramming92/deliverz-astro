@@ -1,20 +1,35 @@
 import { useState } from "react";
-import { auth } from "../lib/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      alert("Login Successful! Redirecting...");
-      window.location.href = "/"; // Redirect to home page
-    } catch (error: any) {
-      setError(error.message);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        alert("Login Successful! Redirecting...");
+        window.location.href = "/";
+      }
+    } catch (err) {
+      setError("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,38 +63,37 @@ const LoginForm = () => {
       <button
         type="submit"
         className="btn btn-success btn-lg py-3 px-4 text-uppercase w-100 mt-4"
+        disabled={isLoading}
       >
-        Login <i className="bi bi-arrow-right ms-2"></i>
+        {isLoading ? (
+          <>
+            <span
+              className="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Logging in...
+          </>
+        ) : (
+          <>
+            Login <i className="bi bi-arrow-right ms-2"></i>
+          </>
+        )}
       </button>
 
       <p className="text-center mt-3">
         Don't have an account?{" "}
-        <a href="#" className="text-success" onClick={() => switchToSignup()}>
+        <a
+          href="#"
+          className="text-success"
+          data-bs-toggle="modal"
+          data-bs-target="#exampleModalToggle2"
+        >
           Click here to register
         </a>
       </p>
     </form>
   );
-};
-
-// Function to switch modal from Login to Signup
-const switchToSignup = () => {
-  const loginModal = document.getElementById(
-    "exampleModalToggle"
-  ) as HTMLElement;
-  const signupModal = document.getElementById(
-    "exampleModalToggle2"
-  ) as HTMLElement;
-
-  if (loginModal && signupModal) {
-    loginModal.classList.remove("show");
-    loginModal.setAttribute("aria-hidden", "true");
-    loginModal.style.display = "none";
-
-    signupModal.classList.add("show");
-    signupModal.setAttribute("aria-hidden", "false");
-    signupModal.style.display = "block";
-  }
 };
 
 export default LoginForm;

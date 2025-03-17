@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { auth } from "../../../lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export const POST: APIRoute = async ({ request }) => {
   const { email, password } = await request.json();
@@ -13,7 +13,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(
+    const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
       password
