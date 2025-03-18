@@ -6,34 +6,56 @@ const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
 });
 
 export const POST: APIRoute = async ({ request }) => {
-  const { uid, email, priceId } = await request.json();
+  const { uid, email, productId, price, planName, currency } =
+    await request.json();
 
-  console.log("Received priceId:", priceId); // ✅ Debugging log
-
-  if (!uid || !email || !priceId) {
+  if (!uid || !email || !price) {
     return new Response(
-      JSON.stringify({ error: "Missing user details or priceId" }),
+      JSON.stringify({ error: "Missing user details or price" }),
       { status: 400 }
     );
   }
 
   try {
+    // ✅ Check if customer already exists in Stripe
+    const existingCustomers = await stripe.customers.list({ email });
+    let customer = existingCustomers.data.length
+      ? existingCustomers.data[0]
+      : null;
+
+    // ✅ If customer doesn't exist, create a new one
+    if (!customer) {
+      customer = await stripe.customers.create({
+        email,
+        metadata: { uid }, // Store Firebase UID in Stripe for reference
+      });
+    }
+
+    // ✅ Create Stripe Checkout Session with the existing customer
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
-      customer_email: email,
-      metadata: { uid },
+      mode: "payment",
+      customer: customer.id, // ✅ Use existing customer ID
+      line_items: [
+        {
+          price_data: {
+            currency: currency || "CAD",
+            unit_amount: price, // Price in cents
+            product_data: {
+              name: planName,
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: { uid, productId, planName, price },
       success_url:
-        "https://deliverz-astro.vercel.app/success?session_id={CHECKOUT_SESSION_ID}", // ✅ Replace with your domain
-      cancel_url: "https://deliverz-astro.vercel.app/cancel",
+        "https://yourwebsite.com/success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "https://yourwebsite.com/cancel",
     });
-
-    console.log("Stripe Checkout URL:", session.url); // ✅ Debugging log
 
     return new Response(JSON.stringify({ url: session.url }), { status: 200 });
   } catch (error: any) {
-    console.error("Stripe Error:", error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
     });

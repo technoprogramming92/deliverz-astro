@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { auth, db2 } from "../lib/firebase";
 
 const SubscriptionList = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const auth = getAuth();
 
   useEffect(() => {
     // ✅ Listen to Firebase Auth State Changes
@@ -13,16 +14,16 @@ const SubscriptionList = () => {
       setUser(firebaseUser);
     });
 
+    // ✅ Fetch Products from Firestore
     const fetchProducts = async () => {
       try {
-        const response = await fetch("/api/stripe/products");
-        const data = await response.json();
-
-        if (data.error) {
-          console.error("Error fetching products:", data.error);
-        } else {
-          setProducts(data);
-        }
+        const productsRef = collection(db2, "products");
+        const snapshot = await getDocs(productsRef);
+        const productsData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setProducts(productsData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
@@ -35,16 +36,23 @@ const SubscriptionList = () => {
     return () => unsubscribe(); // Cleanup auth listener
   }, []);
 
-  const handleSubscribe = async (priceId: string) => {
+  const handleSubscribe = async (product: any) => {
     if (!user) {
-      alert("Please log in to subscribe.");
+      alert("Please log in to continue.");
       return;
     }
 
     try {
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
-        body: JSON.stringify({ uid: user.uid, email: user.email, priceId }),
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          productId: product.id,
+          price: product.price * 100, // Convert to cents for Stripe
+          planName: product.name,
+          currency: "CAD",
+        }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -82,13 +90,13 @@ const SubscriptionList = () => {
                 <div className="listing-card-body pt-3">
                   <h6 className="card-title fw-bold mb-1">{product.name}</h6>
                   <p className="card-text text-muted mb-2">
-                    {product.currency} {product.price}
+                    CAD {product.price}
                   </p>
                   <button
                     className="btn btn-success w-100 mt-2"
-                    onClick={() => handleSubscribe(product.priceId)} // ✅ Send priceId
+                    onClick={() => handleSubscribe(product)}
                   >
-                    Subscribe Now
+                    Buy Now
                   </button>
                 </div>
               </div>
