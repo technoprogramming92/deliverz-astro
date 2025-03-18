@@ -1,0 +1,60 @@
+---
+import { useEffect, useState } from "react";
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { auth, db } from "../lib/firebase.ts";
+import Layout from "../layouts/Layout.astro";
+import Welcome from "../components/Welcome.astro";
+
+const [orderConfirmed, setOrderConfirmed] = useState(false);
+const sessionId = new URLSearchParams(window.location.search).get("session_id");
+
+useEffect(() => {
+  const confirmOrder = async () => {
+    if (!sessionId) return;
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        orders: arrayUnion({
+          orderId: sessionId,
+          date: new Date().toISOString(),
+          status: "Active",
+        }),
+      });
+
+      setOrderConfirmed(true);
+    } catch (error) {
+      console.error("Error confirming order:", error);
+    }
+  };
+
+  confirmOrder();
+}, []);
+---
+
+<Layout>
+  <Welcome />
+  <div class="container text-center py-5">
+    <div class="card shadow p-5">
+      <h2 class="text-success">✅ Payment Successful!</h2>
+      <p class="lead">
+        Thank you for subscribing. Your subscription is now active.
+      </p>
+
+      {
+        orderConfirmed ? (
+          <p class="text-muted">Your order has been added to your account.</p>
+        ) : (
+          <p class="text-warning">Processing your order...</p>
+        )
+      }
+
+      <a href="/" class="btn btn-primary mt-3">Go to Home</a>
+      <a href="/profile" class="btn btn-success mt-3 ms-2">View Orders</a>
+    </div>
+  </div>
+</Layout>

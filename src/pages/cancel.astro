@@ -1,0 +1,18 @@
+---
+import Welcome from "../components/Welcome.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <Welcome />
+  <div class="container text-center py-5">
+    <div class="card shadow p-5">
+      <h2 class="text-danger">❌ Payment Canceled</h2>
+      <p class="lead">You have canceled your subscription.</p>
+      <p class="text-muted">You can try subscribing again anytime.</p>
+
+      <a href="/" class="btn btn-primary mt-3">Go to Home</a>
+      <a href="/subscriptions" class="btn btn-warning mt-3 ms-2">Try Again</a>
+    </div>
+  </div>
+</Layout>

@@ -12,7 +12,6 @@ const SignupForm = () => {
     setIsLoading(true);
     setError(null);
 
-    // Validate passwords
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
       setIsLoading(false);
@@ -28,11 +27,13 @@ const SignupForm = () => {
 
       const result = await response.json();
 
-      if (result.error) {
-        setError(result.error);
-      } else {
+      if (!response.ok || result.error) {
+        setError(result.error || "Signup failed");
+      } else if (result.user) {
         alert(`Signup Successful! Welcome, ${result.user.email}`);
         window.location.href = "/";
+      } else {
+        setError("Unexpected response format");
       }
     } catch (err) {
       setError("An unexpected error occurred.");

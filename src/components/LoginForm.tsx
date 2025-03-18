@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const auth = getAuth(); // Get Firebase Auth instance
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -12,22 +14,20 @@ const LoginForm = () => {
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-        headers: { "Content-Type": "application/json" },
-      });
+      // Firebase login directly
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
-      const result = await response.json();
+      sessionStorage.setItem("loggedIn", "true");
 
-      if (result.error) {
-        setError(result.error);
-      } else {
-        alert("Login Successful! Redirecting...");
-        window.location.href = "/";
-      }
-    } catch (err) {
-      setError("An unexpected error occurred.");
+      alert(`Login Successful! Welcome, ${user.email}`);
+      window.location.href = "/"; // Redirect to home page
+    } catch (error: any) {
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }

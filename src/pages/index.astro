@@ -4,6 +4,7 @@ import SignupForm from "../components/SignupForm";
 import LoginForm from "../components/LoginForm";
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import SubscriptionList from "../components/SubscriptionList";
 ---
 
 <Layout>
@@ -132,125 +133,7 @@ import Layout from "../layouts/Layout.astro";
     </div>
   </section>
 
-  <div class="container py-5">
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
-      <div class="col">
-        <div
-          class="bg-white listing-card shadow-sm rounded-3 p-3 position-relative"
-        >
-          <img
-            src="assets/img/tiffin11.png"
-            class="img-fluid rounded-3"
-            alt="..."
-          />
-          <div class="listing-card-body pt-3">
-            <h6 class="card-title fw-bold mb-1">Trial Tiffin 1</h6>
-            <p class="card-text text-muted mb-2">$ 10</p>
-          </div>
-          <a
-            href="https://buy.stripe.com/test_aEU7vDcN14dybra5kk"
-            class="stretched-link"></a>
-        </div>
-      </div>
-      <div class="col">
-        <div
-          class="bg-white listing-card shadow-sm rounded-3 p-3 position-relative"
-        >
-          <img
-            src="assets/img/tiffin11.png"
-            class="img-fluid rounded-3"
-            alt="..."
-          />
-          <div class="listing-card-body pt-3">
-            <h6 class="card-title fw-bold mb-1">Weekly Subscription 1</h6>
-            <p class="card-text text-muted mb-2">$ 50</p>
-          </div>
-          <a
-            href="https://buy.stripe.com/test_4gwg29cN125q1QA6op"
-            class="stretched-link"></a>
-        </div>
-      </div>
-      <div class="col">
-        <div
-          class="bg-white listing-card shadow-sm rounded-3 p-3 position-relative"
-        >
-          <img
-            src="assets/img/tiffin11.png"
-            class="img-fluid rounded-3"
-            alt="..."
-          />
-          <div class="listing-card-body pt-3">
-            <h6 class="card-title fw-bold mb-1">Monthly Subscription 1</h6>
-            <p class="card-text text-muted mb-2">$ 200</p>
-          </div>
-          <a
-            href="https://buy.stripe.com/test_5kA03b7sH9xSan68wy"
-            class="stretched-link"></a>
-        </div>
-      </div>
-      <div class="col">
-        <div
-          class="bg-white listing-card shadow-sm rounded-3 p-3 position-relative"
-        >
-          <img
-            src="assets/img/tiffin11.png"
-            class="img-fluid rounded-3"
-            alt="..."
-          />
-          <div class="listing-card-body pt-3">
-            <h6 class="card-title fw-bold mb-1">Trial Tiffin 2</h6>
-            <p class="card-text text-muted mb-2">$ 12</p>
-          </div>
-          <a
-            href="https://buy.stripe.com/test_dR64jr9AP7pK9j23cf"
-            class="stretched-link"></a>
-        </div>
-      </div>
-      <div class="col">
-        <div
-          class="bg-white listing-card shadow-sm rounded-3 p-3 position-relative"
-        >
-          <img
-            src="assets/img/tiffin11.png"
-            class="img-fluid rounded-3"
-            alt="..."
-          />
-          <div class="listing-card-body pt-3">
-            <h6 class="card-title fw-bold mb-1">Weekly Subscription 2</h6>
-            <p class="card-text text-muted mb-2">$ 60</p>
-          </div>
-          <a
-            href="https://buy.stripe.com/test_eVa3fncN18tO1QA148"
-            class="stretched-link"></a>
-        </div>
-      </div>
-      <div class="col">
-        <div
-          class="bg-white listing-card shadow-sm rounded-3 p-3 position-relative"
-        >
-          <img
-            src="assets/img/tiffin11.png"
-            class="img-fluid rounded-3"
-            alt="..."
-          />
-          <div class="listing-card-body pt-3">
-            <h6 class="card-title fw-bold mb-1">Monthly Subscription 2</h6>
-            <p class="card-text text-muted mb-2">$ 240</p>
-          </div>
-          <a
-            href="https://buy.stripe.com/test_3cs5nvcN17pKeDmcMR"
-            class="stretched-link"></a>
-        </div>
-      </div>
-    </div>
-    <!-- pagination -->
-    <div class="text-center mt-5">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="mb-0 mt-2">Loading</p>
-    </div>
-  </div>
+  <SubscriptionList client:load />
   <!-- <section class="bg-white">
     <div class="container">
       <div class="row g-4">
