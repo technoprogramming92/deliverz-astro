@@ -49,9 +49,8 @@ export const POST: APIRoute = async ({ request }) => {
         },
       ],
       metadata: { uid, productId, planName, price },
-      success_url:
-        "https://yourwebsite.com/success?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url: "https://yourwebsite.com/cancel",
+      success_url: "https://deliverz-astro.vercel.app/success",
+      cancel_url: "https://deliverz-astro.vercel.app/cancel",
     });
 
     return new Response(JSON.stringify({ url: session.url }), { status: 200 });
