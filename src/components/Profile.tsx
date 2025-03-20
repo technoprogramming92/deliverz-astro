@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
 
 const Profile = () => {
@@ -23,12 +17,15 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const authUser = auth.currentUser;
-      if (!authUser) return;
-
       setIsLoading(true);
+      const authUser = auth.currentUser;
+      if (!authUser) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const userRef = doc(db, "users", authUser.uid);
+        const userRef = doc(db, "customers", authUser.uid); // ✅ Ensure correct Firestore collection
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
@@ -42,15 +39,26 @@ const Profile = () => {
           setPincode(data.pincode || "");
           setLocation(data.location || null);
           setPhotoURL(data.photoURL || "/assets/img/avatar.jpg");
+        } else {
+          console.warn("⚠️ User data not found in Firestore.");
         }
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("❌ Error fetching profile:", error);
       }
       setIsLoading(false);
     };
 
-    const unsubscribe = auth.onAuthStateChanged(fetchProfile);
-    return () => unsubscribe();
+    // ✅ Listen for authentication state changes
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchProfile();
+      } else {
+        setUser(null);
+        setIsLoading(false);
+      }
+    });
+
+    return () => unsubscribe(); // ✅ Cleanup listener on component unmount
   }, []);
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -58,11 +66,10 @@ const Profile = () => {
     if (!user) return;
 
     try {
-      const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db, "customers", user.uid);
       await updateDoc(userRef, {
         fullname,
         phone,
-        email,
         address,
         city,
         pincode,
@@ -70,9 +77,9 @@ const Profile = () => {
         photoURL,
       });
 
-      alert("Profile updated successfully!");
-    } catch (error) {
-      alert("Error updating profile: " + error.message);
+      alert("✅ Profile updated successfully!");
+    } catch (error: any) {
+      alert("❌ Error updating profile: " + error.message);
     }
   };
 
@@ -80,30 +87,35 @@ const Profile = () => {
     if (!user) return;
     if (
       !window.confirm(
-        "Are you sure you want to delete your profile? This action cannot be undone."
+        "⚠️ Are you sure you want to delete your profile? This action cannot be undone."
       )
     ) {
       return;
     }
 
     try {
-      await deleteDoc(doc(db, "users", user.uid));
+      await deleteDoc(doc(db, "customers", user.uid));
       await signOut(auth);
-      alert("Profile deleted successfully.");
+      alert("✅ Profile deleted successfully.");
       window.location.href = "/";
-    } catch (error) {
-      alert("Error deleting profile: " + error.message);
+    } catch (error: any) {
+      alert("❌ Error deleting profile: " + error.message);
     }
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
-    window.location.href = "/";
+    try {
+      await signOut(auth);
+      localStorage.clear(); // ✅ Ensure session is cleared
+      window.location.href = "/";
+    } catch (error) {
+      console.error("❌ Logout Error:", error);
+    }
   };
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+      alert("⚠️ Geolocation is not supported by your browser.");
       return;
     }
 
@@ -111,10 +123,10 @@ const Profile = () => {
       (position) => {
         const coords = `${position.coords.latitude}, ${position.coords.longitude}`;
         setLocation(coords);
-        alert(`Location updated: ${coords}`);
+        alert(`✅ Location updated: ${coords}`);
       },
       (error) => {
-        alert("Unable to retrieve your location: " + error.message);
+        alert("❌ Unable to retrieve your location: " + error.message);
       }
     );
   };

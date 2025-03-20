@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { auth, db2 } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 
 const SubscriptionList = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -9,36 +9,45 @@ const SubscriptionList = () => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    // ✅ Listen to Firebase Auth State Changes
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
+    let isMounted = true; // ✅ Prevents state updates if component unmounts
+
+    // ✅ Listen to Firebase Auth State Changes & Fetch Products Once User is Set
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (isMounted) {
+        setUser(firebaseUser);
+        if (firebaseUser) {
+          await fetchProducts();
+        } else {
+          setLoading(false); // Stop loading if no user is found
+        }
+      }
     });
 
     // ✅ Fetch Products from Firestore
     const fetchProducts = async () => {
       try {
-        const productsRef = collection(db2, "products");
+        const productsRef = collection(db, "products");
         const snapshot = await getDocs(productsRef);
-        const productsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setProducts(productsData);
+        if (!isMounted) return; // Prevents updating state after unmount
+        setProducts(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
       } catch (error) {
-        console.error("Failed to fetch products:", error);
+        console.error("❌ Failed to fetch products:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    fetchProducts();
-
-    return () => unsubscribe(); // Cleanup auth listener
+    return () => {
+      isMounted = false;
+      unsubscribe(); // Cleanup auth listener
+    };
   }, []);
 
   const handleSubscribe = async (product: any) => {
     if (!user) {
-      alert("Please log in to continue.");
+      alert("⚠️ Please log in to continue.");
       return;
     }
 
@@ -59,12 +68,13 @@ const SubscriptionList = () => {
       const result = await response.json();
 
       if (result.error) {
-        alert(result.error);
+        alert(`❌ ${result.error}`);
       } else {
         window.location.href = result.url; // Redirect to Stripe Checkout
       }
     } catch (error) {
-      alert("An unexpected error occurred.");
+      alert("❌ An unexpected error occurred.");
+      console.error("Stripe Checkout Error:", error);
     }
   };
 
@@ -79,29 +89,35 @@ const SubscriptionList = () => {
         </div>
       ) : (
         <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
-          {products.map((product) => (
-            <div key={product.id} className="col">
-              <div className="bg-white listing-card shadow-sm rounded-3 p-3 position-relative">
-                <img
-                  src={product.image}
-                  className="img-fluid rounded-3"
-                  alt={product.name}
-                />
-                <div className="listing-card-body pt-3">
-                  <h6 className="card-title fw-bold mb-1">{product.name}</h6>
-                  <p className="card-text text-muted mb-2">
-                    CAD {product.price}
-                  </p>
-                  <button
-                    className="btn btn-success w-100 mt-2"
-                    onClick={() => handleSubscribe(product)}
-                  >
-                    Buy Now
-                  </button>
+          {products.length === 0 ? (
+            <p className="text-center w-100 text-muted">
+              No products available.
+            </p>
+          ) : (
+            products.map((product) => (
+              <div key={product.id} className="col">
+                <div className="bg-white listing-card shadow-sm rounded-3 p-3 position-relative">
+                  <img
+                    src={product.image || "/default-product.jpg"}
+                    className="img-fluid rounded-3"
+                    alt={product.name}
+                  />
+                  <div className="listing-card-body pt-3">
+                    <h6 className="card-title fw-bold mb-1">{product.name}</h6>
+                    <p className="card-text text-muted mb-2">
+                      CAD {product.price}
+                    </p>
+                    <button
+                      className="btn btn-success w-100 mt-2"
+                      onClick={() => handleSubscribe(product)}
+                    >
+                      Buy Now
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       )}
     </div>

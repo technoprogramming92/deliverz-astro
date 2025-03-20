@@ -220,6 +220,8 @@ import SubscriptionList from "../components/SubscriptionList";
   <!-- Footer -->
   <Footer />
   <!-- Login Modal -->
+  --- import LoginForm from "../components/LoginForm.tsx"; ---
+
   <div
     class="modal fade"
     id="exampleModalToggle"
@@ -240,12 +242,13 @@ import SubscriptionList from "../components/SubscriptionList";
               <div class="d-none d-md-flex col-md-4 col-lg-4 bg-image1"></div>
               <div class="col-md-8 col-lg-8 py-lg-5">
                 <div class="login p-5">
-                  <h5 class="mb-2 fw-bold">Hey! Signin with Email Address</h5>
+                  <h5 class="mb-2 fw-bold">Hey! Sign in with Email Address</h5>
                   <p class="text-muted mb-0">
                     Please login with this email address the next time you
                     sign-in
                   </p>
                   <LoginForm client:load />
+                  <!-- ✅ Ensure React loads inside Astro -->
                 </div>
               </div>
             </div>

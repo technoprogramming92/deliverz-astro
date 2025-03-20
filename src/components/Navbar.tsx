@@ -1,33 +1,44 @@
 import { useState, useEffect } from "react";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../lib/firebase.ts";
 
 const Navbar = () => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    // ✅ Listen to Firebase Authentication State Changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          setUser({ ...firebaseUser, ...userSnap.data() });
-        } else {
-          setUser(firebaseUser);
+        try {
+          const userRef = doc(db, "customers", firebaseUser.uid); // ✅ Ensure collection name is correct
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            setUser({ ...firebaseUser, ...userSnap.data() });
+          } else {
+            setUser(firebaseUser);
+          }
+        } catch (error) {
+          console.error("❌ Error fetching user data:", error);
         }
       } else {
         setUser(null);
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // ✅ Cleanup listener when component unmounts
   }, []);
 
   const handleLogout = async () => {
-    await signOut(auth);
-    setUser(null); // Clear state
-    window.location.href = "/";
+    try {
+      await signOut(auth);
+      setUser(null); // ✅ Clear user state
+      localStorage.clear(); // ✅ Clear session
+      window.location.href = "/"; // ✅ Redirect after logout
+    } catch (error) {
+      console.error("❌ Logout Error:", error);
+    }
   };
 
   return (
@@ -36,12 +47,12 @@ const Navbar = () => {
         <a className="navbar-brand me-0 me-lg-3 me-md-3" href="/">
           <img
             src="/assets/img/new-logo.png"
-            alt="#"
+            alt="Brand Logo"
             className="img-fluid d-none d-md-block"
           />
           <img
             src="/assets/img/new-logo.png"
-            alt="#"
+            alt="Brand Logo"
             className="d-block d-md-none d-lg-none img-fluid"
           />
         </a>
@@ -84,13 +95,13 @@ const Navbar = () => {
                 className="d-flex align-items-center btn btn-light border rounded-pill px-3"
               >
                 <img
-                  src={user.photoURL || "/assets/img/default-avatar.png"}
+                  src={user.photoURL || "/assets/img/avatar.jpg"}
                   alt="User Avatar"
                   className="rounded-circle me-2"
                   style={{ width: "35px", height: "35px" }}
                 />
                 <span className="text-dark">
-                  {user.fullname || "My Profile"}
+                  {user.fullname || user.email || "My Profile"}
                 </span>
               </a>
             ) : null}

@@ -1,12 +1,17 @@
 import { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const auth = getAuth(); // Get Firebase Auth instance
+  const [resendEmail, setResendEmail] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,7 +19,6 @@ const LoginForm = () => {
     setError(null);
 
     try {
-      // Firebase login directly
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -22,14 +26,49 @@ const LoginForm = () => {
       );
       const user = userCredential.user;
 
-      sessionStorage.setItem("loggedIn", "true");
+      // ✅ Prevent login if email is not verified
+      if (!user.emailVerified) {
+        setResendEmail(true);
+        setError("⚠️ Email not verified. Please check your inbox.");
+        return;
+      }
+
+      // ✅ Fetch user details from Firestore
+      const userRef = doc(db, "customers", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        throw new Error("User not found in Firestore.");
+      }
+
+      const userData = userSnap.data();
+      const role = userData.role || "customer";
+
+      // ✅ Store user session
+      localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("userEmail", user.email || "");
 
       alert(`Login Successful! Welcome, ${user.email}`);
-      window.location.href = "/"; // Redirect to home page
+
+      // ✅ Redirect based on role
+      window.location.href = role === "admin" ? "/admin" : "/";
     } catch (error: any) {
-      setError(error.message);
+      setError("⚠️ " + error.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendEmail = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        await sendEmailVerification(user);
+        alert("✅ Verification email sent again. Please check your inbox.");
+      }
+    } catch (error) {
+      alert("❌ Failed to resend verification email.");
     }
   };
 
@@ -59,6 +98,19 @@ const LoginForm = () => {
       </div>
 
       {error && <p className="text-danger">{error}</p>}
+
+      {resendEmail && (
+        <p className="text-warning">
+          Didn't receive an email?{" "}
+          <button
+            type="button"
+            className="btn btn-link p-0"
+            onClick={handleResendEmail}
+          >
+            Click here to resend
+          </button>
+        </p>
+      )}
 
       <button
         type="submit"

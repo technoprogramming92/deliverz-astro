@@ -1,43 +1,20 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import {
-  getAuth,
-  setPersistence,
-  browserLocalPersistence,
-} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// ✅ Load Firebase config from `.env` file
 const firebaseConfig = {
-  apiKey: "AIzaSyCoxc2ryQpb5xek7p0gOv3ohmRwdJU_7_g",
-  authDomain: "deliverz-customer-auth-c7a9f.firebaseapp.com",
-  projectId: "deliverz-customer-auth-c7a9f",
-  storageBucket: "deliverz-customer-auth-c7a9f.firebasestorage.app",
-  messagingSenderId: "204754784471",
-  appId: "1:204754784471:web:f271bfc690801dd9f76092",
+  apiKey: "AIzaSyDZsvNCNy3ZuN2qz-OvS_DIR1WZLFkF8nQ",
+  authDomain: "deliverz-2.firebaseapp.com",
+  projectId: "deliverz-2",
+  storageBucket: "deliverz-2.firebasestorage.app",
+  messagingSenderId: "788902011307",
+  appId: "1:788902011307:web:57d59708ffe69b77db32ee",
 };
 
-const productsFirebaseConfig = {
-  apiKey: "AIzaSyDyewXNSUQSTrQhQTlTwPj1J6Wx47-ylEM",
-  authDomain: "deliverz-auth.firebaseapp.com",
-  projectId: "deliverz-auth",
-  storageBucket: "deliverz-auth.firebasestorage.app",
-  messagingSenderId: "136913221848",
-  appId: "1:136913221848:web:cac322f4e4266108057fad",
-};
+// ✅ Initialize Firebase App (Singleton)
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// ✅ Export Firebase Auth & Firestore
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-
-const productsApp =
-  getApps().find((app) => app.name === "productsApp") ||
-  initializeApp(productsFirebaseConfig, "productsApp");
-export const db2 = getFirestore(productsApp);
-
-setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    console.log("🔥 Firebase auth persistence enabled!");
-  })
-  .catch((error) => {
-    console.error("Error enabling auth persistence:", error);
-  });
